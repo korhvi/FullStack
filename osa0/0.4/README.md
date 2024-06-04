@@ -1,35 +1,35 @@
 sequenceDiagram
-    participant Selain
-    participant Käyttäjä
+    participant Browser
+    participant User
 
-    Note over Selain: Käyttäjä kirjoittaa uuden muistiinpanon tekstikenttään ja painaa "Tallenna"
+    Note over Browser: User writes a new note in the text field and clicks "Save"
 
-    Selain ->> Palvelin: POST https://studies.cs.helsinki.fi/exampleapp/new_note
-    activate Palvelin
-    Note right of Palvelin: Käsittelee uuden muistiinpanon ja tallentaa sen tietokantaan
-    Palvelin -->> Selain: 302 Found (uudelleenohjaus)
-    deactivate Palvelin
+    Browser ->> Server: POST https://studies.cs.helsinki.fi/exampleapp/new_note
+    activate Server
+    Note right of Server: Processes the new note and saves it to the database
+    Server -->> Browser: 302 Found (redirect)
+    deactivate Server
 
-    Selain ->> Palvelin: GET https://studies.cs.helsinki.fi/exampleapp/notes
-    activate Palvelin
-    Palvelin -->> Selain: HTML-dokumentti
-    deactivate Palvelin
+    Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/notes
+    activate Server
+    Server -->> Browser: HTML document
+    deactivate Server
 
-    Selain ->> Palvelin: GET https://studies.cs.helsinki.fi/exampleapp/main.css
-    activate Palvelin
-    Palvelin -->> Selain: CSS-tiedosto
-    deactivate Palvelin
+    Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/main.css
+    activate Server
+    Server -->> Browser: CSS file
+    deactivate Server
 
-    Selain ->> Palvelin: GET https://studies.cs.helsinki.fi/exampleapp/main.js
-    activate Palvelin
-    Palvelin -->> Selain: JavaScript-tiedosto
-    deactivate Palvelin
+    Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/main.js
+    activate Server
+    Server -->> Browser: JavaScript file
+    deactivate Server
 
-    Note right of Selain: Selain alkaa suorittaa JavaScript-koodia, joka hakee JSON-tietoja palvelimelta
+    Note right of Browser: Browser starts executing JavaScript code that fetches JSON data from the server
 
-    Selain ->> Palvelin: GET https://studies.cs.helsinki.fi/exampleapp/data.json
-    activate Palvelin
-    Palvelin -->> Selain: JSON-data
-    deactivate Palvelin
+    Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    activate Server
+    Server -->> Browser: JSON data
+    deactivate Server
 
-    Note right of Selain: Selain suorittaa callback-funktion, joka renderöi muistiinpanot, mukaan lukien uuden muistiinpanon
+    Note right of Browser: Browser executes the callback function that renders the notes, including the new one
