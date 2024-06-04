@@ -1,35 +1,27 @@
 sequenceDiagram
-    participant Browser
-    participant User
+    participant browser
+    participant server
+    
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/notes
+    activate server
+    server-->>browser: HTML document
+    deactivate server
+    
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/main.css
+    activate server
+    server-->>browser: the css file
+    deactivate server
+    
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/main.js
+    activate server
+    server-->>browser: the JavaScript file
+    deactivate server
+    
+    Note right of browser: The browser starts executing the JavaScript code that fetches the JSON from the server
+    
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    activate server
+    server-->>browser: [{ "content": "HTML is easy", "date": "2023-1-1" }, ... ]
+    deactivate server    
 
-    Note over Browser: User writes a new note in the text field and clicks "Save"
-
-Browser ->> Server: POST https://studies.cs.helsinki.fi/exampleapp/new_note
-    activate Server
-    Note right of Server: Processes the new note and saves it to the database
-    Server -->> Browser: 302 Found (redirect)
-    deactivate Server
-
-Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/notes
-    activate Server
-    Server -->> Browser: HTML document
-    deactivate Server
-
-Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/main.css
-    activate Server
-    Server -->> Browser: CSS file
-    deactivate Server
-
-Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/main.js
-    activate Server
-    Server -->> Browser: JavaScript file
-    deactivate Server
-
-    Note right of Browser: Browser starts executing JavaScript code that fetches JSON data from the server
-
-Browser ->> Server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
-    activate Server
-    Server -->> Browser: JSON data
-    deactivate Server
-
-    Note right of Browser: Browser executes the callback function that renders the notes, including the new one
+    Note right of browser: The browser executes the callback function that renders the notes 
