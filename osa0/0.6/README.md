@@ -3,7 +3,6 @@ sequenceDiagram
     participant browser
     participant spa
     participant server
-    participant database
     
     browser->>spa: User creates a new note
     spa->>server: AJAX POST request to create new note
