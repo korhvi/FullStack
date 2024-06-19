@@ -1,7 +1,11 @@
 import { useState } from 'react'
 
-const Button = ({ onClick, text }) => (
-  <button onClick={onClick}>{text}</button>
+const Button = (props) => (
+  <button onClick={props.handleClick}>{props.text}</button>
+)
+
+const Header =(props) => (
+  <h1>{props.text}</h1>
 )
 
 const points = [1, 4, 6, 3]
@@ -37,14 +41,14 @@ const App = () => {
 
   return (
     <div>
-      <h1>Anecdote of the day</h1>
+      <Header text='Anecdote of the day'/>
       {anecdotes[selected]}
       <br />
       has {votes[selected]} votes
       <br />
-      <Button onClick={voteAnecdote} text='vote'/>
-      <Button onClick={nextAnecdote} text='next anecdote'/>
-      <h1>Anecdote with most votes</h1>
+      <Button handleClick={voteAnecdote} text='vote'/>
+      <Button handleClick={nextAnecdote} text='next anecdote'/>
+      <Header text='Anecdote with most votes'/>
       {anecdotes[votes.indexOf(Math.max(...votes))]}
       <br />
       has {Math.max(...votes)} votes
