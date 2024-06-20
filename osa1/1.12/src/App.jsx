@@ -8,10 +8,6 @@ const Header =(props) => (
   <h1>{props.text}</h1>
 )
 
-const points = [1, 4, 6, 3]
-
-const copy = [...points]
-copy[2] += 1
 
 const App = () => {
   const anecdotes = [
