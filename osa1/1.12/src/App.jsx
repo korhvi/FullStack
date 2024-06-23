@@ -5,7 +5,7 @@ const Button = (props) => (
 )
 
 const Header =(props) => (
-  <h1>{props.text}</h1>
+  <h2>{props.text}</h2>
 )
 
 
