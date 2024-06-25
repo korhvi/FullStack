@@ -1,13 +1,16 @@
 import React from 'react';
 
+const Person = ({person}) =>{
+  return( <div>{person.name} {person.number}</div>)}
+
 const Persons = ({ personsToShow }) => {
   return (
     <ul>
-      {personsToShow.map((person) => (
-        <li key={person.name}>{person.name} {person.number}</li>
+      {personsToShow.map(person => (
+        <Person key={person.name} person={person} />
       ))}
     </ul>
   );
 };
 
-export default Persons;
+export default Persons

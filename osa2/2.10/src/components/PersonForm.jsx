@@ -16,4 +16,4 @@ const PersonForm = ({ addPerson, newName, handleNameChange, newNumber, handleNum
   );
 };
 
-export default PersonForm;
+export default PersonForm

@@ -1,26 +1,23 @@
-import { useState } from 'react';
-import Filter from './components/Filter'
-import PersonForm from './components/PersonForm'
-import Persons from './components/Persons'
-
+import { useState } from 'react'
+import PersonForm from './components/PersonForm';
+import Persons from './components/Persons';
+import FilterForm from './components/Filter';
 
 const App = () => {
-  const [persons, setPersons] = useState([{ name: 'Arto Hellas', number: '040-1234567' }]);
+  const [persons, setPersons] = useState([{ name: 'Arto Hellas', number: '040-123456' }]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
-  const [error, setError] = useState('');
   const [filter, setFilter] = useState('');
 
   const addPerson = (event) => {
     event.preventDefault();
-    const newPerson = { name: newName, number: newNumber };
     if (persons.some(person => person.name === newName)) {
-      setError(`${newName} is already added to phonebook`);
+      alert(`${newName} is already added to phonebook`);
     } else {
+      const newPerson = { name: newName, number: newNumber };
       setPersons(persons.concat(newPerson));
       setNewName('');
       setNewNumber('');
-      setError('');
     }
   };
 
@@ -36,31 +33,24 @@ const App = () => {
     setFilter(event.target.value);
   };
 
-  const Person = ({ person }) => {
-    return <li>{person.name} {person.number}</li>;
-  };
+  const personsToShow = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()));
 
-  const personsToShow = filter
-    ? persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
-    : persons;
+  return (
+    <div>
+      <h2>Phonebook</h2>
+      <FilterForm filter={filter} handleFilterChange={handleFilterChange} />
+      <h2>add a new</h2>
+      <PersonForm
+        addPerson={addPerson}
+        newName={newName}
+        handleNameChange={handleNameChange}
+        newNumber={newNumber}
+        handleNumberChange={handleNumberChange}
+      />
+      <h2>Numbers</h2>
+      <Persons personsToShow={personsToShow} />
+    </div>
+  );
+};
 
-    return (
-      <div>
-        <h2>Phonebook</h2>
-        <Filter filter={filter} handleFilterChange={handleFilterChange} />
-        <h2>add a new</h2>
-        <PersonForm
-          addPerson={addPerson}
-          newName={newName}
-          handleNameChange={handleNameChange}
-          newNumber={newNumber}
-          handleNumberChange={handleNumberChange}
-        />
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <h2>Numbers</h2>
-        <Persons personsToShow={personsToShow} />
-      </div>
-    );
-  };
-  
-  export default App;
+export default App
