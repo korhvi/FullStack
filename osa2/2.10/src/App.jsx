@@ -3,24 +3,25 @@ import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import FilterForm from './components/Filter'
 import personService from './services/persons'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [message, setMessage] = useState({ text: null, type: null })
 
   useEffect(() => {
     personService
-    .getAll()
-    .then(initialPersons => {
-      console.log('promise fulfilled')
-      setPersons(initialPersons)
-    })
-  },[])
+      .getAll()
+      .then(initialPersons => {
+        console.log('promise fulfilled')
+        setPersons(initialPersons)
+      })
+  }, [])
 
   console.log('render', persons.length, 'persons')
-
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -35,40 +36,81 @@ const App = () => {
       personService
         .create(newPerson)
         .then(returnedPerson => {
+          setMessage({
+            text: `Added ${returnedPerson.name}`,
+            type: 'success'
+          })
+          setTimeout(() => {
+            setMessage({ text: null, type: null })
+          }, 5000)
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
         })
         .catch(error => {
-          console.error("There was an error adding the person!", error)
+          setMessage({
+            text: `Failed to add ${newPerson.name}. Error: ${error.response.data.error}`,
+            type: 'error'
+          })
+          setTimeout(() => {
+            setMessage({ text: null, type: null })
+          }, 5000)
+          console.error('Failed to add person', error)
         })
     }
   }
-  
 
   const deletePerson = (id) => {
     const person = persons.find(p => p.id === id)
     if (window.confirm(`Delete ${person.name}`)) {
       personService
-      .remove(id)
-      .then(() => {
-        setPersons(persons.filter(person => person.id !== id))
-      })
-      .catch(error => {
-        console.log('There was an error deleting person!', error)
-      })
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id))
+          setMessage({
+            text: `Deleted ${person.name}`,
+            type: 'success'
+          })
+          setTimeout(() => {
+            setMessage({ text: null, type: null })
+          }, 5000)
+        })
+        .catch(error => {
+          setMessage({
+            text: `Failed to delete ${person.name} has already been removed from the server.`,
+            type: 'error'
+          })
+          setTimeout(() => {
+            setMessage({ text: null, type: null })
+          }, 5000)
+          console.error('Failed to delete person', error)
+        })
     }
   }
 
   const updatePerson = (id, updatedPerson) => {
     personService
-    .update(id, updatedPerson)
-    .then(returnedPerson => {
-      setPersons(persons.map(person => person.id !== id ? person : returnedPerson))
-    })
-    .catch(error => {
-      console.error('There was an error updating number', error)
-    })
+      .update(id, updatedPerson)
+      .then(returnedPerson => {
+        setPersons(persons.map(person => person.id !== id ? person : returnedPerson))
+        setMessage({
+          text: `Updated ${returnedPerson.name}`,
+          type: 'success'
+        })
+        setTimeout(() => {
+          setMessage({ text: null, type: null })
+        }, 5000)
+      })
+      .catch(error => {
+        setMessage({
+          text: `Failed to update ${updatedPerson.name} has already been removed from the server.`,
+          type: 'error'
+        })
+        setTimeout(() => {
+          setMessage({ text: null, type: null })
+        }, 5000)
+        console.error('Failed to update person', error)
+      })
   }
 
   const handleNameChange = (event) => {
@@ -88,6 +130,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message.text} type={message.type} />
       <FilterForm filter={filter} handleFilterChange={handleFilterChange} />
       <h2>add a new</h2>
       <PersonForm
