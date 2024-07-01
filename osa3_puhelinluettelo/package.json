@@ -1,0 +1,20 @@
+{
+  "name": "osa3_puhelinluettelo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ville Korhonen",
+  "license": "MIT",
+  "dependencies": {
+    "date-fns": "^3.6.0",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
