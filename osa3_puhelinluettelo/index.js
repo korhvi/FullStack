@@ -1,4 +1,5 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
 
@@ -25,22 +26,18 @@ let persons = [
   }
 ]
 
-const requestLogger = (request, response, next) => {
-    console.log('Method:', request.method)
-    console.log('Path:  ', request.path)
-    console.log('Body:  ', request.body)
-    console.log('---')
-    next()
-  }
 
 app.use(express.json())
-app.use(requestLogger)
+app.use(morgan('tiny'))
 
-const unknownEndpoint = (request, response) => {
-    response.status(404).send({ error: 'unknown endpoint' })
+morgan.token('postData', (req, res) => {
+  if (req.method === 'POST') {
+    return JSON.stringify(req.body)
   }
-  
-  app.use(unknownEndpoint)
+  return '-'
+})
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'))
 
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
@@ -112,6 +109,7 @@ app.get('/info', (request, response) => {
     const now = new Date()
     response.send(`<p>Phonebook has info for ${people} people</p> <p>${now} </p>`)
   })
+
 
 const PORT = 3001
 app.listen(PORT, () => {
