@@ -8,9 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "server": "json-server -p3001 --watch db.json",
-    "build:ui": "rm -rf dist && cd ../2.10 && npm run build && cp -r dist ../.../osa3_puhelinluettelo",
-    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
+    "server": "json-server -p3001 --watch db.json"
   },
   "dependencies": {
     "axios": "^1.7.2",
