@@ -69,6 +69,12 @@ app.post('/api/persons', (request, response) => {
       error: 'number missing' 
     })
   }
+
+  if (!Array.isArray(persons)) {
+    return response.status(500).json({
+      error: 'Internal server error'
+    });
+  }
   
   const existingPerson = persons.find(person => person.name === body.name)
   if (existingPerson) {
