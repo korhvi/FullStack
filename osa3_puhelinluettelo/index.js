@@ -4,8 +4,6 @@ const app = express()
 const cors = require('cors')
 const port = process.env.PORT || 3001;
 
-
-
 let persons = [
   {
     id: "1",
@@ -29,13 +27,10 @@ let persons = [
   }
 ]
 
-
 app.use(cors())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'))
 app.use(express.json())
 app.use(express.static('dist'))
-
-
 
 morgan.token('postData', (req, res) => {
   if (req.method === 'POST') {
@@ -43,7 +38,6 @@ morgan.token('postData', (req, res) => {
   }
   return '-'
 })
-
 
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
@@ -63,22 +57,22 @@ const generateId = () => {
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
-  // if (!body.name) {
-  //   return response.status(400).json({ 
-  //     error: 'name missing' 
-  //   })
-  // }
-  // if (!body.number) {
-  //   return response.status(400).json({ 
-  //     error: 'number missing' 
-  //   })
-  // }
+  if (!body.name) {
+    return response.status(400).json({ 
+      error: 'name missing' 
+    })
+  }
+  if (!body.number) {
+    return response.status(400).json({ 
+      error: 'number missing' 
+    })
+  }
   
   const existingPerson = persons.find(person => person.name === body.name)
   if (existingPerson) {
     return response.status(400).json({ 
-        error: 'name must be unique' 
-      })
+      error: 'name must be unique' 
+    })
   }
 
   const person = {
@@ -93,15 +87,15 @@ app.post('/api/persons', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const person = persons.find(person => person.id === id)
-    if (person) {
-      response.json(person)
-    } else {
-      console.log('x')
-      response.status(404).end()
-    }
-  })
+  const id = request.params.id
+  const person = persons.find(person => person.id === id)
+  if (person) {
+    response.json(person)
+  } else {
+    console.log('x')
+    response.status(404).end()
+  }
+})
 
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
@@ -111,13 +105,10 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    const people = persons.length
-    const now = new Date()
-    response.send(`<p>Phonebook has info for ${people} people</p> <p>${now} </p>`)
-  })
-
-
-
+  const people = persons.length
+  const now = new Date()
+  response.send(`<p>Phonebook has info for ${people} people</p> <p>${now} </p>`)
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
