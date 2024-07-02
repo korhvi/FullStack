@@ -33,6 +33,7 @@ let persons = [
 app.use(cors())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'))
 app.use(express.json())
+app.use(express.static('dist'))
 
 
 
