@@ -49,7 +49,7 @@ app.get('/api/persons', (request, response) => {
 
 const generateId = () => {
   const maxId = persons.length > 0
-    ? Math.max(...persons.map(person => Number(person.id)))
+    ? Math.max(...persons.map(person => person.id))
     : 0
   return maxId + 1
 }
@@ -84,7 +84,7 @@ app.post('/api/persons', (request, response) => {
   }
 
   const person = {
-    id: generateId().toString(),
+    id: generateId(),
     name: body.name,
     number: body.number,
   }
@@ -95,27 +95,33 @@ app.post('/api/persons', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = request.params.id
+  const id = Number(request.params.id)
   const person = persons.find(person => person.id === id)
   if (person) {
     response.json(person)
   } else {
-    console.log('x')
     response.status(404).end()
   }
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-  persons = persons.filter(person => person.id !== id)
+  const id = Number(request.params.id);
+  const personExists = persons.some(person => person.id === id)
 
+  if (!personExists) {
+    return response.status(404).json({
+      error: 'Person not found'
+    })
+  }
+
+  persons = persons.filter(person => person.id !== id)
   response.status(204).end()
 })
 
 app.get('/info', (request, response) => {
   const people = persons.length
   const now = new Date()
-  response.send(`<p>Phonebook has info for ${people} people</p> <p>${now} </p>`)
+  response.send(`<p>Phonebook has info for ${people} people</p> <p>${now}</p>`)
 })
 
 app.listen(port, () => {
