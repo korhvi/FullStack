@@ -57,6 +57,8 @@ const generateId = () => {
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
+  console.log('Request Body:', body) // Debugging statement
+
   if (!body.name) {
     return response.status(400).json({ 
       error: 'name missing' 
