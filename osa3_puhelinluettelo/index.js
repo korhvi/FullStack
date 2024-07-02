@@ -116,6 +116,6 @@ app.get('/info', (request, response) => {
 
 
 const port = process.env.PORT || 3001
-app.listen(PORT, () => {
+app.listen(port, () => {
   console.log(`Server running on port ${port}`)
 })
