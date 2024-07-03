@@ -9,13 +9,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rm -rf dist && cd ../osa2/2.1 && npm run build && cp -r dist ../osa3",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
-    
   },
   "author": "Ville Korhonen",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "mongodb": "^6.8.0",
+    "mongoose": "^8.4.4"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
