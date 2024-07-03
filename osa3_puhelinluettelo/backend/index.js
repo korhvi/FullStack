@@ -31,17 +31,20 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-
-const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(person => Number(person.id)))
-    : 0
-  return String(maxId + 1)
-}
+app.get('/api/persons/:id', (request, response) => {
+  const id = request.params.id
+  Person.findById(id)
+  .then(person => {
+    if (person) {
+      response.json(person)
+    } else {
+      response.status(404).end()
+    }
+  })
+})
 
 
 app.post('/api/persons', (request, response) => {
-  Person.find({}).then(persons => {
   const { name, number } = request.body
 
   if (!name || !number) {
@@ -50,102 +53,62 @@ app.post('/api/persons', (request, response) => {
     })
   }
   
-  const existingPerson = persons.find(person => person.name === name);
-  if (existingPerson) {
-    return response.status(400).json({ 
-      error: 'name must be unique' 
-    })
-  }
-
-  const person = {
-    id: generateId(),
+  const person = new Person({
     name: name,
     number: number,
-  };
+  })
 
-  persons = persons.concat(person)
-
-  response.json(person)
-})})
-
-
-app.get('/api/persons/:id', (request, response) => {
-  Person.find({}).then(persons => {
-  const id = Number(request.params.id)
-  const person = persons.find(person => person.id === id)
-  if (person) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
-})})
+  person.save()
+  .then(savedPerson => {
+    response.json(savedPerson)
+  })
+})
 
 
 app.delete('/api/persons/:id', (request, response) => {
-  Person.find({}).then(persons => {
   const id = request.params.id
-  const personExists = persons.some(person => person.id === id)
 
-  if (!personExists) {
-    return response.status(404).json({
-      error: 'Person not found'
+  Person.findOneAndDelete({ _id: id })
+    .then(result => {
+      if (result) {
+        response.status(204).end()
+      } else {
+        response.status(404).json({ error: 'Person not found' })
+      }
     })
-  }
+})
 
-  persons = persons.filter(person => person.id !== id)
-  response.status(204).end()
-})})
 
 
 app.put('/api/persons/:id', (request, response) => {
-  Person.find({}).then(persons => {
   const id = request.params.id
   const { name, number } = request.body
 
-  const personIndex = persons.findIndex(person => person.id === id)
-
-  if (personIndex !== -1) {
-
-    persons[personIndex] = {
-      id,
-      name,
-      number,
-    }
-    response.json(persons[personIndex])
-  } else {
-    response.status(404).json({
-      error: 'Person not found'
+  Person.findByIdAndUpdate(id, { name, number }, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
     })
-  }
-})})
+  })
 
 
 app.patch('/api/persons/:id', (request, response) => {
-  Person.find({}).then(persons => {
   const id = request.params.id
   const { name, number } = request.body
 
-  const personIndex = persons.findIndex(person => person.id === id)
-
-  if (personIndex !== -1) {
-    if (name) persons[personIndex].name = name
-    if (number) persons[personIndex].number = number
-
-    response.json(persons[personIndex])
-  } else {
-    response.status(404).json({
-      error: 'Person not found'
+  Person.findByIdAndUpdate(id, { name, number }, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
     })
-  }
-})})
+  })
 
 
 app.get('/info', (request, response) => {
-  Person.find({}).then(persons => {
-  const people = persons.length
-  const now = new Date()
-  response.send(`<p>Phonebook has info for ${people} people</p> <p>${now}</p>`)
-})})
+  Person.countDocuments({})
+    .then(count => {
+      const now = new Date()
+      response.send(`<p>Phonebook has info for ${count} people</p> <p>${now}</p>`)
+    })
+  })
 
 
 app.listen(port, () => {
