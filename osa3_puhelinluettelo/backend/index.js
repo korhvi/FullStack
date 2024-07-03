@@ -49,9 +49,9 @@ app.get('/api/persons', (request, response) => {
 
 const generateId = () => {
   const maxId = persons.length > 0
-    ? Math.max(...persons.map(person => person.id))
+    ? Math.max(...persons.map(person => Number(person.id)))
     : 0
-  return maxId + 1
+  return String(maxId + 1)
 }
 
 app.post('/api/persons', (request, response) => {
@@ -93,15 +93,15 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id);
-  const personExists = persons.some(person => person.id === id)
+  const personIndex = persons.findIndex(person => person.id === id)
 
-  if (!personExists) {
+  if (!personIndex === -1) {
     return response.status(404).json({
       error: 'Person not found'
     })
   }
 
-  persons = persons.filter(person => person.id !== id)
+  persons.splice(personIndex, 1)
   response.status(204).end()
 })
 
