@@ -92,16 +92,16 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
-  const personIndex = persons.findIndex(person => person.id === id)
+  const id = request.params.id
+  const personExists = persons.some(person => person.id === id)
 
-  if (!personIndex === -1) {
+  if (!personExists) {
     return response.status(404).json({
       error: 'Person not found'
     })
   }
 
-  persons.splice(personIndex, 1)
+  persons = persons.filter(person => person.id !== id)
   response.status(204).end()
 })
 
