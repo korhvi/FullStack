@@ -55,24 +55,11 @@ const generateId = () => {
 }
 
 app.post('/api/persons', (request, response) => {
-  const body = request.body
+  const {name, number } = request.body
 
-  console.log('Request Body:', body) // Debugging statement
-
-  if (!body.name) {
+  if (!(name || number )) {
     return response.status(400).json({ 
-      error: 'name missing' 
-    })
-  }
-  if (!body.number) {
-    return response.status(400).json({ 
-      error: 'number missing' 
-    })
-  }
-
-  if (!Array.isArray(persons)) {
-    return response.status(500).json({
-      error: 'Internal server error'
+      error: 'name or number missing' 
     })
   }
   
