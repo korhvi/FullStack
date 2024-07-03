@@ -59,19 +59,8 @@ const App = () => {
   }
 
   const deletePerson = (id) => {
-    const person = persons.find(person => person.id === id)
-    if (!person) {
-      setMessage({
-        text: 'Person not found',
-        type: 'error'
-      })
-      setTimeout(() => {
-        setMessage({ text: null, type: null })
-      }, 5000)
-      return
-    }
-
-    if (window.confirm(`Delete ${person.name}?`)) {
+    const person = persons.find(p => p.id === id)
+    if (window.confirm(`Delete ${person.name}`)) {
       personService
         .remove(id)
         .then(() => {
@@ -86,7 +75,7 @@ const App = () => {
         })
         .catch(error => {
           setMessage({
-            text: `Failed to delete ${person.name}. They may have already been removed from the server.`,
+            text: `Failed to delete ${person.name} has already been removed from the server.`,
             type: 'error'
           })
           setTimeout(() => {
