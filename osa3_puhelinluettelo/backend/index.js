@@ -105,6 +105,45 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end()
 })
 
+app.put('/api/persons/:id', (request, response) => {
+  const id = request.params.id
+  const { name, number } = request.body
+
+  const personIndex = persons.findIndex(person => person.id === id)
+
+  if (personIndex !== -1) {
+
+    persons[personIndex] = {
+      id,
+      name,
+      number,
+    }
+    response.json(persons[personIndex])
+  } else {
+    response.status(404).json({
+      error: 'Person not found'
+    })
+  }
+})
+
+app.patch('/api/persons/:id', (request, response) => {
+  const id = request.params.id
+  const { name, number } = request.body
+
+  const personIndex = persons.findIndex(person => person.id === id)
+
+  if (personIndex !== -1) {
+    if (name) persons[personIndex].name = name
+    if (number) persons[personIndex].number = number
+
+    response.json(persons[personIndex])
+  } else {
+    response.status(404).json({
+      error: 'Person not found'
+    })
+  }
+})
+
 app.get('/info', (request, response) => {
   const people = persons.length
   const now = new Date()
