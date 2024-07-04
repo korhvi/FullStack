@@ -24,8 +24,9 @@ const personSchema = new mongoose.Schema({
   },
   number: {
     type: String,    
-    minlength: 3,    
-    required: true  
+    minlength: 8,    
+    required: true,
+    match: [/^\d{2,3}-\d+$/, 'Invalid phone number format']
   },
 })
 
