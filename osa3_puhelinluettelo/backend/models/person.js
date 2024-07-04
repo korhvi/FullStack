@@ -18,13 +18,13 @@ mongoose.connect(url)
 
 const personSchema = new mongoose.Schema({
   name: {
-    type: String,    
-    minlength: 3,    
-    required: true  
+    type: String,
+    minlength: 3,
+    required: true
   },
   number: {
-    type: String,    
-    minlength: 8,    
+    type: String,
+    minlength: 8,
     required: true,
     match: [/^\d{2,3}-\d+$/, 'Invalid phone number format']
   },
