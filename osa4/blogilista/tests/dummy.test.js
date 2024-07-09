@@ -4,5 +4,5 @@ test('dummy returns one', () => {
     const blogs = []
   
     const result = listHelper.dummy(blogs)
-    assert.strictEqual(result, 1)
+    expect(result).toBe(1)
   })
