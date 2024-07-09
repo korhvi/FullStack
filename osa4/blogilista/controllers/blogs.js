@@ -7,6 +7,7 @@ blogsRouter.get('/', async (request, response) => {
     const blogs = await Blog.find({})
     response.json(blogs)
   } catch (error) {
+    console.error(error)
     response.status(500).json({ error: 'something went wrong' })
   }
 })
@@ -29,6 +30,21 @@ blogsRouter.post('/', async (request, response) => {
     const savedBlog = await blog.save()
     response.status(201).json(savedBlog)
   } catch (error) {
+    console.error(error)
+    response.status(500).json({ error: 'something went wrong' })
+  }
+})
+
+blogsRouter.delete('/:id', async (request, response) => {
+  try {
+    const blog = await Blog.findByIdAndDelete(request.params.id)
+    if (blog) {
+      response.status(204).end()
+    } else {
+      response.status(404).json({ error: 'blog not found' })
+    }
+  } catch (error) {
+    console.error(error)
     response.status(500).json({ error: 'something went wrong' })
   }
 })
