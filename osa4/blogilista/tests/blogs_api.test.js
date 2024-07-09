@@ -83,6 +83,33 @@ test('if likes is missing, it defaults to 0', async () => {
   expect(addedBlog.likes).toBe(0)
 })
 
+test('blog without title or url is not added', async () => {
+  const newBlogWithoutTitle = {
+    author: 'New Author',
+    url: 'http://example.com/3',
+    likes: 3,
+  }
+
+  const newBlogWithoutUrl = {
+    title: 'New Blog',
+    author: 'New Author',
+    likes: 3,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlogWithoutTitle)
+    .expect(400)
+
+  await api
+    .post('/api/blogs')
+    .send(newBlogWithoutUrl)
+    .expect(400)
+
+  const blogsAtEnd = await Blog.find({})
+  expect(blogsAtEnd).toHaveLength(initialBlogs.length)
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
