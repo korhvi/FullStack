@@ -44,6 +44,27 @@ test('blog indentifier is named id', async () => {
   expect(blog._id).toBeUndefined()
 })
 
+test('a valid blog can be added', async () => {
+  const newBlog = {
+    title: 'New Blog',
+    author: 'New Author',
+    url: 'http://example.com/3',
+    likes:3,
+  }
+
+  await api
+  .post('/api/blogs')
+  .send(newBlog)
+  .expect(201)
+  .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await Blog.find({})
+  expect(blogsAtEnd).toHaveLength(initialBlogs.length + 1)
+
+  const titles = blogsAtEnd.map(b => b.title)
+  expect(titles).toContain('New Blog')
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
