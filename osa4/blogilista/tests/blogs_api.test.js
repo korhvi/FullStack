@@ -13,11 +13,16 @@ beforeEach(async () => {
   await User.deleteMany({})
 
   const passwordHash = await bcrypt.hash('password', 10)
-  const user = new User({ username: 'root', passwordHash })
+  const user = new User({
+    username: 'root',
+    name: 'admin',
+    blogs: [],
+    passwordHash
+  })
 
   await user.save()
 
-  const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
+  const blogObjects = helper.initialBlogs.map(blog => new Blog({ ...blog, user: user._id }))
   const promiseArray = blogObjects.map(blog => blog.save())
   await Promise.all(promiseArray)
 }, 100000)
@@ -38,11 +43,15 @@ describe('when there are initially some blogs saved', () => {
 
 describe('addition of a new blog', () => {
   test('a valid blog can be added', async () => {
+    const users = await helper.usersInDb()
+    const user = users[0]
+
     const newBlog = {
       title: 'New Blog',
       author: 'New Author',
       url: 'http://example.com/3',
       likes: 3,
+      user: user.id
     }
 
     await api
@@ -51,7 +60,7 @@ describe('addition of a new blog', () => {
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const blogsAtEnd = await Blog.find({})
+    const blogsAtEnd = await Blog.find({}).populate('user', { username: 1, name: 1 })
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
     const titles = blogsAtEnd.map(b => b.title)
@@ -59,10 +68,14 @@ describe('addition of a new blog', () => {
   })
 
   test('if likes is missing, it defaults to 0', async () => {
+    const users = await helper.usersInDb()
+    const user = users[0]
+
     const newBlog = {
       title: 'New Blog Without Likes',
       author: 'New Author',
       url: 'http://example.com/4',
+      user: user.id
     }
 
     await api
@@ -77,16 +90,21 @@ describe('addition of a new blog', () => {
   })
 
   test('blog without title or url is not added', async () => {
+    const users = await helper.usersInDb()
+    const user = users[0]
+
     const newBlogWithoutTitle = {
       author: 'New Author',
       url: 'http://example.com/5',
       likes: 3,
+      user: user.id
     }
 
     const newBlogWithoutUrl = {
       title: 'New Blog Without URL',
       author: 'New Author',
       likes: 3,
+      user: user.id
     }
 
     await api
@@ -173,7 +191,7 @@ describe('when there is initially one user in the db', () => {
 
     const usernames = usersAtEnd.map(u => u.username)
     expect(usernames).toContain(newUser.username)
-  }, 10000) 
+  }, 10000)
 
   test('creation fails with proper status code and message if username already taken', async () => {
     const usersAtStart = await helper.usersInDb()
@@ -193,10 +211,9 @@ describe('when there is initially one user in the db', () => {
     expect(result.body.error).toContain('expected `username` to be unique')
 
     const usersAtEnd = await helper.usersInDb()
-    expect(usersAtEnd).toEqual(usersAtStart)  
-  }, 10000) 
+    expect(usersAtEnd).toEqual(usersAtStart)
+  }, 10000)
 })
-
 
 afterAll(async () => {
   await mongoose.connection.close()
