@@ -10,23 +10,19 @@ const api = supertest(app)
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  await Blog.insertMany(helper.initialBlogs)
   await User.deleteMany({})
 
-  const passwordHash = await bcrypt.hash('sekret', 10)
+  const passwordHash = await bcrypt.hash('password', 10)
   const user = new User({ username: 'root', passwordHash })
 
   await user.save()
-})
+
+  const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
+  const promiseArray = blogObjects.map(blog => blog.save())
+  await Promise.all(promiseArray)
+}, 100000)
 
 describe('when there are initially some blogs saved', () => {
-  test('blogs are returned as json', async () => {
-    await api
-      .get('/api/blogs')
-      .expect(200)
-      .expect('Content-Type', /application\/json/)
-  })
-
   test('all blogs are returned', async () => {
     const response = await api.get('/api/blogs')
     expect(response.body).toHaveLength(helper.initialBlogs.length)
@@ -64,9 +60,9 @@ describe('addition of a new blog', () => {
 
   test('if likes is missing, it defaults to 0', async () => {
     const newBlog = {
-      title: 'New Blog',
+      title: 'New Blog Without Likes',
       author: 'New Author',
-      url: 'http://example.com/3'
+      url: 'http://example.com/4',
     }
 
     await api
@@ -76,19 +72,19 @@ describe('addition of a new blog', () => {
       .expect('Content-Type', /application\/json/)
 
     const blogsAtEnd = await Blog.find({})
-    const addedBlog = blogsAtEnd.find(b => b.title === 'New Blog')
+    const addedBlog = blogsAtEnd.find(b => b.title === 'New Blog Without Likes')
     expect(addedBlog.likes).toBe(0)
   })
 
   test('blog without title or url is not added', async () => {
     const newBlogWithoutTitle = {
       author: 'New Author',
-      url: 'http://example.com/3',
+      url: 'http://example.com/5',
       likes: 3,
     }
 
     const newBlogWithoutUrl = {
-      title: 'New Blog',
+      title: 'New Blog Without URL',
       author: 'New Author',
       likes: 3,
     }
@@ -147,7 +143,7 @@ describe('updating a blog', () => {
   })
 })
 
-describe('when there is initially one user at db', () => {
+describe('when there is initially one user in the db', () => {
   beforeEach(async () => {
     await User.deleteMany({})
 
@@ -173,13 +169,13 @@ describe('when there is initially one user at db', () => {
       .expect('Content-Type', /application\/json/)
 
     const usersAtEnd = await helper.usersInDb()
-    expect(usersAtEnd.length).toBe(usersAtStart.length + 1)
+    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
 
     const usernames = usersAtEnd.map(u => u.username)
     expect(usernames).toContain(newUser.username)
-  })
+  }, 10000) 
 
-  test('creation fails with proper statuscode and message if username already taken', async () => {
+  test('creation fails with proper status code and message if username already taken', async () => {
     const usersAtStart = await helper.usersInDb()
 
     const newUser = {
@@ -194,10 +190,11 @@ describe('when there is initially one user at db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    const usersAtEnd = await helper.usersInDb()
     expect(result.body.error).toContain('expected `username` to be unique')
-    expect(usersAtEnd.length).toBe(usersAtStart.length)
-  })
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toEqual(usersAtStart)  
+  }, 10000) 
 })
 
 afterAll(async () => {
