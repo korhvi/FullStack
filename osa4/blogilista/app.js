@@ -6,6 +6,7 @@ const config = require('./utils/config')
 const logger = require('./utils/logger')
 const blogsRouter = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
+const middleware = require('./utils/middleware')
 
 mongoose.set('strictQuery', false)
 
