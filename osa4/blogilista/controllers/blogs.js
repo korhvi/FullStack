@@ -28,30 +28,21 @@ blogsRouter.put('/:id', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
-  try {
-    const body = request.body
+  const body = request.body
 
-    const user = await User.findById(body.userId)
-    if (!user) {
-      return response.status(400).json({ error: 'invalid user id' })
-    }
+  if (!body.title || !body.url) {
+      return response.status(400).json({ error: 'title or url missing' })
+  }
 
-    const blog = new Blog({
+  const blog = new Blog({
       title: body.title,
       author: body.author,
       url: body.url,
-      likes: body.likes || 0,
-      user: user._id
-    })
+      likes: body.likes || 0
+  })
 
-    const savedBlog = await blog.save()
-    user.blogs = user.blogs.concat(savedBlog._id)
-    await user.save()
-
-    response.status(201).json(savedBlog)
-  } catch (error) {
-    response.status(500).json({ error: 'something went wrong' })
-  }
+  const savedBlog = await blog.save()
+  response.status(201).json(savedBlog)
 })
 
 blogsRouter.get('/:id', async (request, response) => {
