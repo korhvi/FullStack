@@ -5,8 +5,6 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-
 const helper = require('./test_helper')
 
 const Blog = require('../models/blog')
@@ -15,6 +13,8 @@ const User = require('../models/user')
 let token
 
 describe('when there are initially some blogs saved', () => {
+  let loginUser
+
   beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(helper.initialBlogs)
@@ -24,24 +24,32 @@ describe('when there are initially some blogs saved', () => {
     const user = new User({ username: 'juurikas', passwordHash })
     await user.save()
 
-    const userForToken = { username: user.username, id: user._id }
-    token = jwt.sign(userForToken, process.env.SECRET)
+    loginUser = await api
+      .post('/api/login')
+      .send({ username: 'juurikas', password: 'salainen' })
+    
+    token = loginUser.body.token
   })
 
   test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
   })
 
   test('all blogs are returned', async () => {
-    const response = await api.get('/api/blogs')
+    const response = await api
+      .get('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
     assert.strictEqual(response.body.length, helper.initialBlogs.length)
   })
 
   test('unique identifier property of the blog posts is named id', async () => {
-    const response = await api.get('/api/blogs')
+    const response = await api
+      .get('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
     const blog = response.body[0]
     assert(blog.id)
     assert(!blog._id)
@@ -55,19 +63,19 @@ describe('when there are initially some blogs saved', () => {
         url: 'http://asyncawait.com',
         likes: 5,
       }
-
+    
       await api
         .post('/api/blogs')
         .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
-
+    
       const response = await api.get('/api/blogs')
       const blogsAtEnd = response.body
-
+    
       assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
-
+    
       const titles = blogsAtEnd.map(blog => blog.title)
       assert(titles.includes('async/await simplifies making async calls'))
     })
