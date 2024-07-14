@@ -5,16 +5,27 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const helper = require('./test_helper')
 
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
+let token
+
 describe('when there are initially some blogs saved', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(helper.initialBlogs)
+
+    await User.deleteMany({})
+    const passwordHash = await bcrypt.hash('salainen', 10)
+    const user = new User({ username: 'juurikas', passwordHash })
+    await user.save()
+
+    const userForToken = { username: user.username, id: user._id }
+    token = jwt.sign(userForToken, process.env.SECRET)
   })
 
   test('blogs are returned as json', async () => {
@@ -40,13 +51,14 @@ describe('when there are initially some blogs saved', () => {
     test('a valid blog can be added', async () => {
       const newBlog = {
         title: 'async/await simplifies making async calls',
-        author: 'Author',
+        author: 'Kirjoittaja',
         url: 'http://asyncawait.com',
         likes: 5,
       }
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -63,12 +75,13 @@ describe('when there are initially some blogs saved', () => {
     test('blog without likes defaults to 0', async () => {
       const newBlog = {
         title: 'blog without likes',
-        author: 'Author',
+        author: 'Kirjoittaja',
         url: 'http://nolikes.com',
       }
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -82,12 +95,13 @@ describe('when there are initially some blogs saved', () => {
 
     test('blog without title or url is not added', async () => {
       const newBlog = {
-        author: 'Author',
+        author: 'Kirjoittaja',
         likes: 5,
       }
 
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(400)
 
@@ -102,8 +116,8 @@ describe('when there are initially some blogs saved', () => {
     beforeEach(async () => {
       await User.deleteMany({})
 
-      const passwordHash = await bcrypt.hash('sekret', 10)
-      const user = new User({ username: 'root', passwordHash })
+      const passwordHash = await bcrypt.hash('salasana', 10)
+      const user = new User({ username: 'tuulentuoma', passwordHash })
 
       await user.save()
     })
@@ -112,8 +126,8 @@ describe('when there are initially some blogs saved', () => {
       const usersAtStart = await helper.usersInDb()
 
       const newUser = {
-        username: 'mluukkai',
-        name: 'Matti Luukkainen',
+        username: 'haukkamies',
+        name: 'Heikki Haukkamies',
         password: 'salainen',
       }
 
@@ -134,8 +148,8 @@ describe('when there are initially some blogs saved', () => {
       const usersAtStart = await helper.usersInDb()
 
       const newUser = {
-        username: 'root',
-        name: 'Superuser',
+        username: 'tuulentuoma',
+        name: 'Superkäyttäjä',
         password: 'salainen',
       }
 
