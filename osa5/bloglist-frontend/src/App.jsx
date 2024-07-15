@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Notification from './components/Notification'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('') 
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [message, setMessage] = useState({ text: null, type: null })
   const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' })
 
   useEffect(() => {
@@ -22,38 +23,55 @@ const App = () => {
 
   useEffect(() => {
     blogService
-    .getAll()
-    .then(blogs => {
-      setBlogs(blogs)
-    })
+      .getAll()
+      .then(blogs => {
+        setBlogs(blogs)
+      })
   }, [])
 
-  const handleLogin = async (event) => {    
-    event.preventDefault()   
-    try {      
-      const user = await loginService.login({        
-        username, password,      
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    try {
+      const user = await loginService.login({
+        username, password,
       })
 
-      window.localStorage.setItem(        
-        'loggedBlogappUser', JSON.stringify(user)      
+      window.localStorage.setItem(
+        'loggedBlogappUser', JSON.stringify(user)
       )
       blogService.setToken(user.token)
-      setUser(user)     
-      setUsername('')     
-      setPassword('')    
-    } catch (exception) {      
-      setErrorMessage('wrong credentials')      
-      setTimeout(() => {        
-        setErrorMessage(null)     
-      }, 5000)    
-    } 
+      setUser(user)
+      setUsername('')
+      setPassword('')
+      setMessage({
+        text: 'Successfully logged in!',
+        type: 'success'
+      })
+      setTimeout(() => {
+        setMessage({ text: null, type: null })
+      }, 5000)
+    } catch (error) {
+      setMessage({
+        text: 'Wrong username or password',
+        type: 'error'
+      })
+      setTimeout(() => {
+        setMessage({ text: null, type: null })
+      }, 5000)
+    }
   }
 
   const handleLogout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
     blogService.setToken(null)
+    setMessage({
+      text: 'Successfully logged out',
+      type: 'success'
+    })
+    setTimeout(() => {
+      setMessage({ text: null, type: null })
+    }, 5000)
   }
 
   const addBlog = async (event) => {
@@ -68,10 +86,20 @@ const App = () => {
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
       setNewBlog({ title: '', author: '', url: '' })
-    } catch (exception) {
-      setErrorMessage('Failed to add blog')
+      setMessage({
+        text: `a new blog ${blogObject.title} by ${blogObject.author} added`,
+        type: 'success'
+      })
       setTimeout(() => {
-        setErrorMessage(null)
+        setMessage({ text: null, type: null })
+      }, 5000)
+    } catch (exception) {
+      setMessage({
+        text: 'Failed to add blog',
+        type: 'error'
+      })
+      setTimeout(() => {
+        setMessage({ text: null, type: null })
       }, 5000)
     }
   }
@@ -85,6 +113,7 @@ const App = () => {
     return (
       <div>
         <h2>Log in to application</h2>
+        <Notification message={message.text} type={message.type} />
         <form onSubmit={handleLogin}>
           <div>
             username
@@ -104,7 +133,6 @@ const App = () => {
           </div>
           <button type="submit">login</button>
         </form>
-        {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
       </div>
     )
   }
@@ -112,6 +140,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+      <Notification message={message.text} type={message.type} />
       <p>{user.name} logged in <button onClick={handleLogout}>logout</button></p>
       <form onSubmit={addBlog}>
         <div>
@@ -143,7 +172,6 @@ const App = () => {
         </div>
         <button type="submit">create</button>
       </form>
-      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
