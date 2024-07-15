@@ -3,6 +3,8 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
+import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -112,27 +114,14 @@ const App = () => {
   if (user === null) {
     return (
       <div>
-        <h2>Log in to application</h2>
         <Notification message={message.text} type={message.type} />
-        <form onSubmit={handleLogin}>
-          <div>
-            username
-            <input
-              type="text"
-              value={username}
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </div>
-          <div>
-            password
-            <input
-              type="password"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </div>
-          <button type="submit">login</button>
-        </form>
+        <LoginForm
+          handleLogin={handleLogin}
+          username={username}
+          password={password}
+          setUsername={setUsername}
+          setPassword={setPassword}
+        />
       </div>
     )
   }
@@ -142,36 +131,11 @@ const App = () => {
       <h2>blogs</h2>
       <Notification message={message.text} type={message.type} />
       <p>{user.name} logged in <button onClick={handleLogout}>logout</button></p>
-      <form onSubmit={addBlog}>
-        <div>
-          title
-          <input
-            type="text"
-            name="title"
-            value={newBlog.title}
-            onChange={handleBlogChange}
-          />
-        </div>
-        <div>
-          author
-          <input
-            type="text"
-            name="author"
-            value={newBlog.author}
-            onChange={handleBlogChange}
-          />
-        </div>
-        <div>
-          url
-          <input
-            type="text"
-            name="url"
-            value={newBlog.url}
-            onChange={handleBlogChange}
-          />
-        </div>
-        <button type="submit">create</button>
-      </form>
+      <BlogForm
+        addBlog={addBlog}
+        newBlog={newBlog}
+        handleBlogChange={handleBlogChange}
+      />
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
