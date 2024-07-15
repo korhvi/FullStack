@@ -9,6 +9,7 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
+  const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' })
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -55,6 +56,31 @@ const App = () => {
     blogService.setToken(null)
   }
 
+  const addBlog = async (event) => {
+    event.preventDefault()
+    const blogObject = {
+      title: newBlog.title,
+      author: newBlog.author,
+      url: newBlog.url,
+    }
+
+    try {
+      const returnedBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(returnedBlog))
+      setNewBlog({ title: '', author: '', url: '' })
+    } catch (exception) {
+      setErrorMessage('Failed to add blog')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  }
+
+  const handleBlogChange = ({ target }) => {
+    const { name, value } = target
+    setNewBlog({ ...newBlog, [name]: value })
+  }
+
   if (user === null) {
     return (
       <div>
@@ -86,8 +112,38 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <p>{user.name} logged in</p>
-      <button onClick={handleLogout}>logout</button>
+      <p>{user.name} logged in <button onClick={handleLogout}>logout</button></p>
+      <form onSubmit={addBlog}>
+        <div>
+          title
+          <input
+            type="text"
+            name="title"
+            value={newBlog.title}
+            onChange={handleBlogChange}
+          />
+        </div>
+        <div>
+          author
+          <input
+            type="text"
+            name="author"
+            value={newBlog.author}
+            onChange={handleBlogChange}
+          />
+        </div>
+        <div>
+          url
+          <input
+            type="text"
+            name="url"
+            value={newBlog.url}
+            onChange={handleBlogChange}
+          />
+        </div>
+        <button type="submit">create</button>
+      </form>
+      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
