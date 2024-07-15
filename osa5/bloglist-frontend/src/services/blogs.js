@@ -4,7 +4,7 @@ const baseUrl = 'http://localhost:3003/api/blogs'
 let token = null
 
 const setToken = newToken => {
-  token = `Bearer ${newToken}`
+  token = `bearer ${newToken}`
 }
 
 const getAll = async () => {
