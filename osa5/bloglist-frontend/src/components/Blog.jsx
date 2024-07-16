@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import blogService from '../services/blogs'
 import PropTypes from 'prop-types'
+import blogService from '../services/blogs'  // Varmista, että polku on oikea
 
-const Blog = ({ blog, blogs, setBlogs, user }) => {
+const Blog = ({ blog, blogs, setBlogs, user, handleLike }) => {
   const [showDetails, setShowDetails] = useState(false)
 
   const blogStyle = {
@@ -17,7 +17,7 @@ const Blog = ({ blog, blogs, setBlogs, user }) => {
     setShowDetails(!showDetails)
   }
 
-  const likeBlog = async () => {
+  const likeBlog = () => {
     const updatedBlog = {
       ...blog,
       likes: blog.likes + 1,
@@ -25,8 +25,8 @@ const Blog = ({ blog, blogs, setBlogs, user }) => {
     }
 
     try {
-      const returnedBlog = await blogService.update(blog.id, updatedBlog)
-      setBlogs(blogs.map((b) => (b.id !== blog.id ? b : returnedBlog)))
+      handleLike()
+      setBlogs(blogs.map((b) => (b.id !== blog.id ? b : updatedBlog)))
     } catch (exception) {
       console.error('Failed to like the blog', exception)
     }
@@ -83,6 +83,7 @@ Blog.propTypes = {
     username: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
   }).isRequired,
+  handleLike: PropTypes.func.isRequired,
 }
 
 export default Blog
