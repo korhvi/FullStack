@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import blogService from '../services/blogs'
+import PropTypes from 'prop-types'
 
 const Blog = ({ blog, blogs, setBlogs, user }) => {
   const [showDetails, setShowDetails] = useState(false)
@@ -9,7 +10,7 @@ const Blog = ({ blog, blogs, setBlogs, user }) => {
     paddingLeft: 2,
     border: 'solid',
     borderWidth: 1,
-    marginBottom: 5
+    marginBottom: 5,
   }
 
   const toggleDetails = () => {
@@ -20,12 +21,12 @@ const Blog = ({ blog, blogs, setBlogs, user }) => {
     const updatedBlog = {
       ...blog,
       likes: blog.likes + 1,
-      user: blog.user ? blog.user.id : null
+      user: blog.user ? blog.user.id : null,
     }
 
     try {
       const returnedBlog = await blogService.update(blog.id, updatedBlog)
-      setBlogs(blogs.map(b => (b.id !== blog.id ? b : returnedBlog)))
+      setBlogs(blogs.map((b) => (b.id !== blog.id ? b : returnedBlog)))
     } catch (exception) {
       console.error('Failed to like the blog', exception)
     }
@@ -35,7 +36,7 @@ const Blog = ({ blog, blogs, setBlogs, user }) => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
       try {
         await blogService.remove(blog.id)
-        setBlogs(blogs.filter(b => b.id !== blog.id))
+        setBlogs(blogs.filter((b) => b.id !== blog.id))
       } catch (exception) {
         console.error('Failed to delete the blog', exception)
       }
@@ -45,7 +46,8 @@ const Blog = ({ blog, blogs, setBlogs, user }) => {
   return (
     <div style={blogStyle}>
       <div>
-        {blog.title} {blog.author} <button onClick={toggleDetails}>{showDetails ? 'hide' : 'view'}</button>
+        {blog.title} {blog.author}{' '}
+        <button onClick={toggleDetails}>{showDetails ? 'hide' : 'view'}</button>
       </div>
       {showDetails && (
         <div>
@@ -61,6 +63,26 @@ const Blog = ({ blog, blogs, setBlogs, user }) => {
       )}
     </div>
   )
+}
+
+Blog.propTypes = {
+  blog: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    author: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    likes: PropTypes.number.isRequired,
+    user: PropTypes.shape({
+      username: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+    }),
+  }).isRequired,
+  blogs: PropTypes.arrayOf(PropTypes.object).isRequired,
+  setBlogs: PropTypes.func.isRequired,
+  user: PropTypes.shape({
+    username: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
 }
 
 export default Blog
