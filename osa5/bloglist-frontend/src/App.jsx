@@ -12,7 +12,7 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [message, setMessage] = useState({ text: null, type: null })
+  const [message, setMessage] = useState({ text: null, type: '' })
   const [newBlog, setNewBlog] = useState({ title: '', author: '', url: '' })
 
   const blogFormRef = useRef()
@@ -50,7 +50,7 @@ const App = () => {
         type: 'success',
       })
       setTimeout(() => {
-        setMessage({ text: null, type: null })
+        setMessage({ text: null, type: '' })
       }, 5000)
     } catch (error) {
       setMessage({
@@ -58,7 +58,7 @@ const App = () => {
         type: 'error',
       })
       setTimeout(() => {
-        setMessage({ text: null, type: null })
+        setMessage({ text: null, type: '' })
       }, 5000)
     }
   }
@@ -72,7 +72,7 @@ const App = () => {
       type: 'success',
     })
     setTimeout(() => {
-      setMessage({ text: null, type: null })
+      setMessage({ text: null, type: '' })
     }, 5000)
   }
 
@@ -93,7 +93,7 @@ const App = () => {
         type: 'success',
       })
       setTimeout(() => {
-        setMessage({ text: null, type: null })
+        setMessage({ text: null, type: '' })
       }, 5000)
       blogFormRef.current.toggleVisibility()
     } catch (exception) {
@@ -102,7 +102,7 @@ const App = () => {
         type: 'error',
       })
       setTimeout(() => {
-        setMessage({ text: null, type: null })
+        setMessage({ text: null, type: '' })
       }, 5000)
     }
   }
@@ -112,11 +112,25 @@ const App = () => {
     setNewBlog({ ...newBlog, [name]: value })
   }
 
+  const handleLike = async (blog) => {
+    const updatedBlog = {
+      ...blog,
+      likes: blog.likes + 1,
+    }
+    try {
+      const returnedBlog = await blogService.update(blog.id, updatedBlog)
+      setBlogs(blogs.map((b) => (b.id !== blog.id ? b : returnedBlog)))
+    } catch (exception) {
+      console.error('Failed to like the blog', exception)
+    }
+  }
+
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
 
   if (user === null) {
     return (
       <div>
+        <h2>log in to application</h2>
         <Notification message={message.text} type={message.type} />
         <LoginForm
           handleLogin={handleLogin}
@@ -150,6 +164,7 @@ const App = () => {
           user={user}
           blogs={blogs}
           setBlogs={setBlogs}
+          handleLike={() => handleLike(blog)}
         />
       ))}
     </div>

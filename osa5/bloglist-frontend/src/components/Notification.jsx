@@ -6,7 +6,9 @@ const Notification = ({ message, type }) => {
     return null
   }
 
-  return <div className={type}>{message}</div>
+  const className = `notification ${type || 'info'}`
+
+  return <div className={className}>{message}</div>
 }
 
 Notification.propTypes = {

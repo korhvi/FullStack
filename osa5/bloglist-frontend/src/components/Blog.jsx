@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import blogService from '../services/blogs'  // Varmista, että polku on oikea
+import blogService from '../services/blogs'
 
 const Blog = ({ blog, blogs, setBlogs, user, handleLike }) => {
   const [showDetails, setShowDetails] = useState(false)
@@ -18,18 +18,7 @@ const Blog = ({ blog, blogs, setBlogs, user, handleLike }) => {
   }
 
   const likeBlog = () => {
-    const updatedBlog = {
-      ...blog,
-      likes: blog.likes + 1,
-      user: blog.user ? blog.user.id : null,
-    }
-
-    try {
-      handleLike()
-      setBlogs(blogs.map((b) => (b.id !== blog.id ? b : updatedBlog)))
-    } catch (exception) {
-      console.error('Failed to like the blog', exception)
-    }
+    handleLike(blog)
   }
 
   const deleteBlog = async () => {
