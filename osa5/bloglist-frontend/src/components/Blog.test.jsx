@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, beforeEach } from 'vitest'
 import Blog from './Blog'
 
@@ -38,10 +38,24 @@ describe('<Blog />', () => {
     })
     expect(titleElement).toBeInTheDocument()
 
-    const urlElement = screen.queryByText('http://testurl.com')
-    expect(urlElement).toBeNull()
+    expect(screen.queryByText('http://testurl.com')).toBeNull()
+    expect(screen.queryByText('likes 0')).toBeNull()
+  })
 
-    const likesElement = screen.queryByText('likes 0')
-    expect(likesElement).toBeNull()
+  it('renders URL, likes, and user information when the button to show details is clicked', () => {
+    render(
+      <Blog
+        blog={blog}
+        blogs={[]}
+        setBlogs={() => {}}
+        user={{ username: 'testuser', name: 'Test User' }}
+      />,
+    )
+
+    fireEvent.click(screen.getByText('view'))
+
+    expect(screen.getByText('http://testurl.com')).toBeInTheDocument()
+    expect(screen.getByText('likes 0')).toBeInTheDocument()
+    expect(screen.getByText('Test User')).toBeInTheDocument()
   })
 })
