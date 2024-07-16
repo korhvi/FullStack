@@ -34,16 +34,13 @@ describe('<Blog />', () => {
       />,
     )
 
-    // Klikkaa "view"-nappia näyttääksesi kaikki tiedot
     const viewButton = screen.getByText('view')
     fireEvent.click(viewButton)
 
-    // Klikkaa "like"-nappia kahdesti
     const likeButton = screen.getByText('like')
     fireEvent.click(likeButton)
     fireEvent.click(likeButton)
 
-    // Varmista, että tapahtumankäsittelijäfunktiota kutsutaan kahdesti
     expect(mockHandler).toHaveBeenCalledTimes(2)
   })
 })
