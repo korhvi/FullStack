@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "vite",
-    "test": "playwright test",
+    "test": "playwright test --project chromium",
     "test:report": "playwright show-report"
   },
   "keywords": [],
