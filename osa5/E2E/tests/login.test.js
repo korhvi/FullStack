@@ -41,5 +41,23 @@ describe('Blog app', () => {
       await page.locator('button[type="submit"]').click()
       await expect(page.locator('text=wrong username or password')).toBeVisible()
     })
+
+    describe('When logged in', () => {
+      beforeEach(async ({ page }) => {
+        await page.fill('input[name="Username"]', 'testausta')
+        await page.fill('input[name="Password"]', 'salainen')
+        await page.click('button[type="submit"]')
+        await expect(page.locator('text=Testi Testinen logged in')).toBeVisible()
+      })
+
+      test('a new blog can be created', async ({ page }) => {
+        await page.click('button:has-text("create new blog")')
+        await page.fill('input[name="title"]', 'Test Blog Title')
+        await page.fill('input[name="author"]', 'Test Author')
+        await page.fill('input[name="url"]', 'http://testblog.com')
+        await page.click('button[type="submit"]:has-text("create")')
+        await expect(page.locator('text=a new blog Test Blog Title by Test Author added')).toBeVisible()
+      })
+    })
   })
 })
