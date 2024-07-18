@@ -12,38 +12,55 @@ describe('Blog app', () => {
       }
     })
 
-    await page.goto('/');
+    await page.goto('http://localhost:5173')
   })
 
   test('Login form is shown', async ({ page }) => {
-    const loginForm = page.locator('form')
-    await expect(loginForm).toBeVisible()
+    const usernameField = page.getByTestId('username')
+    const passwordField = page.getByTestId('password')
+    
+    await expect(usernameField).toBeVisible()
+    await expect(passwordField).toBeVisible()
   })
 
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
-      await page.locator('input[name="Username"]').fill('testausta')
-      await page.locator('input[name="Password"]').fill('salainen')
-      await page.locator('button[type="submit"]').click()
-      await expect(page.locator('text=Testi Testinen logged in')).toBeVisible()
+      await loginWith(page, 'testausta', 'salainen')    
+      await expect(page.getByText('Testi Testinen logged in')).toBeVisible()
     })
 
     test('fails with wrong credentials', async ({ page }) => {
-      await page.locator('input[name="Username"]').fill('testausta')
-      await page.locator('input[name="Password"]').fill('vääräsalasana')
-      await page.locator('button[type="submit"]').click()
-      await expect(page.locator('text=wrong username or password')).toBeVisible()
+      await loginWith(page, 'testausta', 'wrongpassword')
+      await expect(page.getByText('Wrong username or password')).toBeVisible()
     })
 
     describe('When logged in', () => {
       beforeEach(async ({ page }) => {
         await loginWith(page, 'testausta', 'salainen')
-        await expect(page.locator('text=Testi Testinen logged in')).toBeVisible()
       })
-
+  
       test('a new blog can be created', async ({ page }) => {
-        await createBlog(page, 'Test Blog Title', 'Test Author', 'http://testblog.com')
-        await expect(page.locator('text=a new blog Test Blog Title by Test Author added')).toBeVisible()
+        const title = 'Test Blog'
+        const author = 'Test Author'
+        const url = 'http://Test.com'
+  
+        await createBlog(page, title, author, url)
+  
+        await expect(page.getByText(`${title} ${author}`)).toBeVisible()      
+      })
+      test('a blog can be liked', async ({ page }) => {
+        const title = 'Testi Blog'
+        const author = 'Testi Author'
+        const url = 'http://Test.com'
+  
+        await createBlog(page, title, author, url)
+
+        const blogElement = page.locator(`text=${title} ${author}`)
+
+        await blogElement.getByRole('button', { name: 'view' }).click()
+        await page.getByRole('button', { name: 'like' }).click()
+
+        await expect(page.getByText('likes 1')).toBeVisible()
       })
     })
   })

@@ -15,6 +15,7 @@ const BlogForm = ({ addBlog, newBlog, handleBlogChange }) => {
           type="text"
           value={newBlog.title}
           name="title"
+          data-testid="title"
           onChange={handleBlogChange}
         />
       </div>
@@ -24,6 +25,7 @@ const BlogForm = ({ addBlog, newBlog, handleBlogChange }) => {
           type="text"
           value={newBlog.author}
           name="author"
+          data-testid="author"
           onChange={handleBlogChange}
         />
       </div>
@@ -33,6 +35,7 @@ const BlogForm = ({ addBlog, newBlog, handleBlogChange }) => {
           type="text"
           value={newBlog.url}
           name="url"
+          data-testid="url"
           onChange={handleBlogChange}
         />
       </div>
@@ -43,11 +46,7 @@ const BlogForm = ({ addBlog, newBlog, handleBlogChange }) => {
 
 BlogForm.propTypes = {
   addBlog: PropTypes.func.isRequired,
-  newBlog: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    author: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
-  }).isRequired,
+  newBlog: PropTypes.object.isRequired,
   handleBlogChange: PropTypes.func.isRequired,
 }
 
