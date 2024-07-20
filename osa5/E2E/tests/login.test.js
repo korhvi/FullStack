@@ -111,6 +111,49 @@ describe('Blog app', () => {
 
         await expect(blogElement.getByRole('button', { name: 'delete' })).not.toBeVisible()
       })
+
+      
+      test('blogs are ordered according to likes', async ({ page }) => {
+        await createBlog(page, 'Blog1', 'Author 1', 'http://1.com')
+        await createBlog(page, 'Blog2', 'Author 2', 'http://2.com')
+        await createBlog(page, 'Blog3', 'Author 3', 'http://3.com')
+
+        await expect(page.getByText(` a new blog Blog3 by Author 3 added`)).toBeVisible()      
+
+        const blogData = [
+          { title: 'Blog1', likes: 3 },
+          { title: 'Blog2', likes: 2 },
+          { title: 'Blog3', likes: 7 }
+        ]
+
+        for (const blog of blogData) {
+          const blogElement = page.locator(`text=${blog.title}`)
+          await blogElement.getByRole('button', { name: 'view' }).click()
+
+          const likeButton = await page.getByRole('button', { name: 'like' })
+          for (let i = 0; i < blog.likes; i++) {
+            await likeButton.click()
+          }
+
+          await page.getByRole('button', { name: 'hide' }).click()
+        }
+
+        await page.waitForTimeout(1000)
+        const updatedBlogs = await page.$$('[data-testid="blog"]')
+
+        const likes = await Promise.all(
+          updatedBlogs.map(async (blog) => {
+            const likesElement = await blog.$('[data-testid="number-of-likes"]')
+            const likesText = await likesElement.innerText()
+            return parseInt(likesText.trim(), 10)
+          })
+        )
+
+        function isSortedDescending(array) {
+          return array.every((value, index, array) => index === 0 || array[index - 1] >= value)
+        }
+        expect(isSortedDescending(likes)).toBe(true)
+      })
     })
   })
 })
