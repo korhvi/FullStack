@@ -84,6 +84,35 @@ describe('Blog app', () => {
         
         await expect(blogElement).not.toBeVisible()
       })
+
+      test('only the user who added a blog sees the delete button', async ({ page, request }) => {
+        const title = 'Näkyvä Blog'
+        const author = 'Näkyvä Author'
+        const url = 'http://Näkyvä.com'
+
+        await createBlog(page, title, author, url)
+
+        const blogElement = page.locator(`text=${title} ${author}`)
+
+        await blogElement.getByRole('button', { name: 'view' }).click()
+
+        await expect(page.getByRole('button', { name: 'delete' })).toBeVisible()
+
+        await page.getByRole('button', { name: 'logout' }).click()
+        await request.post('/api/users', {
+          data: {
+            name: 'Toinen Testi',
+            username: 'Test',
+            password: 'salainen'
+          }
+        })
+
+        await loginWith(page, 'Test', 'salainen')
+
+        await blogElement.getByRole('button', { name: 'view' }).click()
+
+        await expect(blogElement.getByRole('button', { name: 'delete' })).not.toBeVisible()
+      })
     })
   })
 })
