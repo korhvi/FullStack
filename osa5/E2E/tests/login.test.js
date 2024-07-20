@@ -48,6 +48,7 @@ describe('Blog app', () => {
   
         await expect(page.getByText(`${title} ${author}`)).toBeVisible()      
       })
+
       test('a blog can be liked', async ({ page }) => {
         const title = 'Testi Blog'
         const author = 'Testi Author'
@@ -61,6 +62,27 @@ describe('Blog app', () => {
         await page.getByRole('button', { name: 'like' }).click()
 
         await expect(page.getByText('likes 1')).toBeVisible()
+      })
+
+      test('a blog can be deleted by the user who added it', async ({ page }) => {
+        const title = 'Poista Blog'
+        const author = 'Poista Author'
+        const url = 'http://Poista.com'
+
+        await createBlog(page, title, author, url)
+
+        const blogElement = page.locator(`text=${title} ${author}`)
+
+        await blogElement.getByRole('button', { name: 'view' }).click()
+
+        page.on('dialog', async dialog => {
+          expect(dialog.message()).toContain(`Remove blog ${title} by ${author}?`)
+          await dialog.accept()
+        })
+
+        await page.getByRole('button', { name: 'delete' }).click()
+        
+        await expect(blogElement).not.toBeVisible()
       })
     })
   })
