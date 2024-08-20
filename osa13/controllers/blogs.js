@@ -2,6 +2,42 @@ const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 const { Blog, User } = require('../models');
 const { SECRET } = require('../util/config');
+const { Op } = require('sequelize');
+
+
+router.get('/', async (req, res) => {
+  const where = {};
+
+  if (req.query.search) {
+    const searchTerm = req.query.search.toLowerCase();
+    where[Op.or] = [
+      {
+        title: {
+          [Op.iLike]: `%${searchTerm}%`
+        }
+      },
+      {
+        author: {
+          [Op.iLike]: `%${searchTerm}%` 
+        }
+      }
+    ];
+  }
+
+  try {
+    const blogs = await Blog.findAll({
+      attributes: { exclude: ['userId'] },
+      include: {
+        model: User,
+        attributes: ['name']
+      },
+      where
+    });
+    res.json(blogs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 const tokenExtractor = (req, res, next) => {
   const authorization = req.get('authorization');
@@ -16,21 +52,6 @@ const tokenExtractor = (req, res, next) => {
   }
   next();
 };
-
-router.get('/', async (req, res) => {
-  try {
-    const blogs = await Blog.findAll({
-      attributes: { exclude: ['userId'] },
-      include: {
-        model: User,
-        attributes: ['name']
-      }
-    });
-    res.json(blogs);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 router.post('/', tokenExtractor, async (req, res) => {
   try {
