@@ -59,6 +59,10 @@ const tokenExtractor = (req, res, next) => {
 
 router.post('/', tokenExtractor, async (req, res) => {
   try {
+    const { year } = req.body;
+    if (year < 1991 || year > new Date().getFullYear()) {
+      return res.status(400).json({ error: 'Year must be between 1991 and the current year.'});
+    }
     const user = await User.findByPk(req.decodedToken.id);
     if (!user) {
       return res.status(401).json({ error: 'Invalid user' });
