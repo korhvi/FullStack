@@ -25,16 +25,29 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { read } = req.query;
+
   try {
-    const user = await User.findByPk(req.params.id, {
-      include: {
-        model: Blog,
-        as: 'readings',
-        attributes: ['id', 'url', 'title', 'author', 'likes', 'year'],
-        through: {
-          attributes: ['id', 'read'],
+    const whereClause = {};
+    if (read !== undefined) {
+      whereClause.read = read === 'true';
+    }
+
+    const user = await User.findByPk(id, {
+      include: [
+        {
+          model: Blog,
+          as: 'readings',
+          attributes: ['id', 'url', 'title', 'author', 'likes', 'year'],
+          through: {
+            model: ReadingList,
+            as: 'readingList',
+            attributes: ['id', 'read'],
+            where: whereClause,
+          },
         },
-      },
+      ],
     });
 
     if (user) {
