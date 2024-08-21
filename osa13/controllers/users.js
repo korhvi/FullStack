@@ -25,20 +25,23 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id, {
-      include: {
+  const user = await User.findByPk(req.params.id, {
+    include: [
+      {
         model: Blog,
-        attributes: { exclude: ['userId'] }
+        as: 'readings',
+        attributes: ['id', 'url', 'title', 'author', 'likes', 'year'],
+        through: {
+          attributes: []
+        }
       }
-    });
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).end();
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    ]
+  });
+
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(404).end();
   }
 });
 
