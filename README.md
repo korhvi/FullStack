@@ -32,7 +32,7 @@
 - Implementing token-based authentication
 - End-to-end testing with Playwright and Cypress
 
-Part 13: Working with Relational Databases
+### Part 13: Working with Relational Databases
 - Integrated PostgreSQL with Node.js using Sequelize.
 - Created models, handled relationships, and managed migrations.
 - Worked with advanced queries and many-to-many relationships.
